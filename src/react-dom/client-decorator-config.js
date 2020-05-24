@@ -9,6 +9,6 @@ exports.applyConfig = ({ actions, stage }) => {
         "react-dom$": require.resolve(`webpack-decorators-react-dom`),
         "___react-dom-original___$": require.resolve(`react-dom`)
       },
-    },
+    }
   });
 }

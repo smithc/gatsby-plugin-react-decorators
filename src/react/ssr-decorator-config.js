@@ -40,7 +40,7 @@ exports.applyConfig = ({ getConfig, actions, stage }) => {
           react$: require.resolve(`webpack-decorators-react`),
           "___react-original___$": require.resolve(`react`),
         },
-      },
+      }
     });
   } catch (ex) {
     console.error(

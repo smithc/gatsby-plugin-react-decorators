@@ -17,7 +17,7 @@ exports.onCreateWebpackConfig = (gatsbyConfig, configOptions) => {
     if (react.options & opts.ssr) {
       reactSsrDecoratorConfig.applyConfig({...gatsbyConfig});
     }
-    if (react & opts.runtime) {
+    if (react.options & opts.runtime) {
       reactRuntimeDecoratorConfig.applyConfig({...gatsbyConfig});
     }
   }
