@@ -6,9 +6,12 @@ const reactRuntimeDecoratorConfig = require('./src/react/client-decorator-config
 const reactDomSsrDecoratorConfig = require('./src/react-dom/ssr-decorator-config');
 const reactDomRuntimeDecoratorConfig = require('./src/react-dom/client-decorator-config');
 
+const AddToContextPlugin = require('./src/plugins/AddToContextPlugin');
+
 exports.onCreateWebpackConfig = (gatsbyConfig, configOptions) => {
+  const { actions } = gatsbyConfig;
   const {
-    react = { options: opts.runtime | opts.ssr },
+    react = { options: opts.runtime | opts.ssr, boundaryTargets: [] },
     reactDOM = { options: opts.runtime | opts.ssr },
   } = configOptions;
 
@@ -31,4 +34,21 @@ exports.onCreateWebpackConfig = (gatsbyConfig, configOptions) => {
       reactDomRuntimeDecoratorConfig.applyConfig({...gatsbyConfig});
     }
   }
+
+  const aliases = {};
+  const boundaryTargets = react.boundaryTargets;
+  for (target of boundaryTargets) {
+    const [component, path] = [ ...target ];
+    aliases[`__webpack-decorators__Components__${path}__${component}`] = path;
+  }
+
+  actions.setWebpackConfig({
+    resolve: {
+      alias: aliases,
+    },
+    plugins: [
+      // See note in AddToContextPlugin.js for why this is necessary
+      new AddToContextPlugin(Object.getOwnPropertyNames(aliases))
+    ]
+  })
 }

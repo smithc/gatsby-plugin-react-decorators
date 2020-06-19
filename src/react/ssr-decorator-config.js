@@ -42,6 +42,10 @@ exports.applyConfig = ({ getConfig, actions, stage }) => {
         },
       }
     });
+
+    // attempt an eager react load
+    const react = require('react');
+    console.log(`[ssr-decorator-config]: eagerly loading react: ${react}`);
   } catch (ex) {
     console.error(
       `[ssr-decorator-config] Unable to enable SSR react component decoration: ${ex}`,

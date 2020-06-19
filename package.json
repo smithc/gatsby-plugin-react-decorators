@@ -1,6 +1,6 @@
 {
   "name": "gatsby-plugin-react-decorators",
-  "version": "0.0.2",
+  "version": "0.0.3-test.18",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -28,11 +28,11 @@
   },
   "homepage": "https://github.com/smithc/gatsby-plugin-react-decorators#readme",
   "dependencies": {
-    "webpack-decorators-react": "0.0.2",
-    "webpack-decorators-react-dom": "0.0.2"
+    "webpack-decorators-react": "0.0.3",
+    "webpack-decorators-react-dom": "0.0.3"
   },
   "peerDependencies": {
     "gatsby": "^2.4.4",
-    "webpack-decorators": "^0.0.2"
+    "webpack-decorators": "^0.0.3"
   }
 }
