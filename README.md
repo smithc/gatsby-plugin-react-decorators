@@ -20,12 +20,14 @@ module.exports = {
             options: opts.runtime | opts.ssr
         },
         reactDOM: {
-            options: opts.runtime | opts.ssr
+            options: opts.runtime | opts.ssr | opts.enableProfiler
         }
       },
     }]
 }
 ```
+
+Note that the `opts.enableProfiler` option (enabled by default) will enable the React profiler (as if you had added the `--profile` option to `gatsby build`/`gatsby develop`, or manually specified `react-dom/profiling` as a webpack alias for `react-dom`).
 
 3. Register your local decorators
 

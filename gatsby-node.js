@@ -6,10 +6,12 @@ const reactRuntimeDecoratorConfig = require('./src/react/client-decorator-config
 const reactDomSsrDecoratorConfig = require('./src/react-dom/ssr-decorator-config');
 const reactDomRuntimeDecoratorConfig = require('./src/react-dom/client-decorator-config');
 
+const reactDomProfilingRuntimeDecoratorConfig = require('./src/react-dom/profiling/client-decorator-config');
+
 exports.onCreateWebpackConfig = (gatsbyConfig, configOptions) => {
   const {
     react = { options: opts.runtime | opts.ssr },
-    reactDOM = { options: opts.runtime | opts.ssr },
+    reactDOM = { options: opts.runtime | opts.ssr | opts.enableProfiler },
   } = configOptions;
 
   // Enable react component decoration
@@ -24,11 +26,15 @@ exports.onCreateWebpackConfig = (gatsbyConfig, configOptions) => {
 
   // Enable react-dom component decoration
   if (reactDOM) {
+    const isProfilerEnabled = (reactDOM.options & opts.enableProfiler) && process.env.NODE_ENV === 'production';
+    const ssrConfig = reactDomSsrDecoratorConfig;
+    const runtimeConfig = isProfilerEnabled ? reactDomProfilingRuntimeDecoratorConfig : reactDomRuntimeDecoratorConfig;
+
     if (reactDOM.options & opts.ssr) {
-      reactDomSsrDecoratorConfig.applyConfig({...gatsbyConfig});
+      ssrConfig.applyConfig({...gatsbyConfig});
     }
     if (reactDOM.options & opts.runtime) {
-      reactDomRuntimeDecoratorConfig.applyConfig({...gatsbyConfig});
+      runtimeConfig.applyConfig({...gatsbyConfig});
     }
   }
 }
