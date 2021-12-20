@@ -10,8 +10,16 @@ exports.applyConfig = ({ getConfig, actions, stage }) => {
     const webpackConfig = getConfig();
     const cacheGroups = webpackConfig.optimization.splitChunks.cacheGroups;
 
+    const profilerMatches = [
+      /node_modules[/\\]react-dom[\\/](profiling|((cjs|umd)[\\/]react-dom\.(profiling|development)))/,
+      /node_modules[/\\]scheduler[\\/](tracing-profiling|(cjs|umd)[\\/](scheduler(\.|-)tracing))/
+    ];
+    const regexes = new RegExp(profilerMatches
+      .map(r => `(${r.source})`)
+      .join('|'));
+
     const profilers = {
-      test: /node_modules[/\\]react-dom[\\/](profiling|((cjs|umd)[\\/]react-dom\.(profiling|development)))/,
+      test: regexes,
       name: 'react-dom-profiling',
       enforce: true,
       priority: 100,
