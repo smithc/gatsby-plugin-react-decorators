@@ -33,7 +33,10 @@ exports.onPreRenderHTML = ({ getHeadComponents, replaceHeadComponents, getPostBo
       }catch {}
     })();
   `;
-  const mangledInlineHeadScript = href => inlineHeadScriptValue(href).replace(/\n/g, '');
+  // This removes all superfluous whitespace from the script. Watch out if you change the script to include valid double-spaces.
+  const mangledInlineHeadScript = href => inlineHeadScriptValue(href)
+    .replace(/\n/g, '')
+    .replace(/\s\s/g, '');
 
   if (reactProfilerLinkIndex !== -1) {
     // Create new inline script to replace the profiler link
