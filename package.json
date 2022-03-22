@@ -1,6 +1,6 @@
 {
   "name": "gatsby-plugin-react-decorators",
-  "version": "1.0.0-beta.2",
+  "version": "2.0.0-beta.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -32,7 +32,7 @@
     "webpack-decorators-react-dom": "0.0.4"
   },
   "peerDependencies": {
-    "gatsby": "^2.4.4",
+    "gatsby": "^3.0.0 || ^4.0.0",
     "webpack-decorators": "^0.0.4"
   }
 }

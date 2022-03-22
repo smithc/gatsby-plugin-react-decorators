@@ -5,9 +5,16 @@ exports.applyConfig = ({ getConfig, actions, stage }) => {
     return;
   }
 
+  const webpackConfig = getConfig();
+  
+  let reactDomOriginal = "react-dom";
+  if (webpackConfig.resolve?.alias && webpackConfig.resolve.alias[`react-dom`]) {
+    reactDomOriginal = webpackConfig.resolve.alias[`react-dom`];
+    delete webpackConfig.resolve.alias[`react-dom`];
+  }
+
   if (stage === "build-javascript") {
     // Customize the webpack config's optimization.splitChunks
-    const webpackConfig = getConfig();
     const cacheGroups = webpackConfig.optimization.splitChunks.cacheGroups;
 
     const profilerMatches = [
@@ -26,8 +33,11 @@ exports.applyConfig = ({ getConfig, actions, stage }) => {
     };
 
     cacheGroups.profilers = profilers;
-    actions.replaceWebpackConfig(webpackConfig);
   }
 
-  actions.setWebpackConfig(getWebpackConfig(true));
+  actions.replaceWebpackConfig(webpackConfig);
+
+  actions.setWebpackConfig(getWebpackConfig(true, {
+    'react-dom': reactDomOriginal
+  }));
 }

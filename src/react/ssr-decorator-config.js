@@ -5,31 +5,69 @@ exports.applyConfig = ({ getConfig, actions, stage }) => {
     }
 
     const config = getConfig();
-    const [externalFunc, ...rest] = config.externals;
+    
+    // Gatsby v3:
+    // externalFunc has signature: 
+    // ({
+    //   context,
+    //   getResolve,
+    //   request
+    // }, callback)
 
-    config.externals = [
-      function (context, request, callback) {
-        externalFunc(context, request, (_, resolvedImport) => {
-          if (request === "___react-original___") {
-            // This ensures that our original react alias is resolved 'externally' (used by ReactWrapper)
-            callback(null, `umd react`);
-            return;
-          }
+    // See: https://github.com/gatsbyjs/gatsby/blob/04d1d37d53e28deb13ec46dd97fb79b2c6cc863e/packages/gatsby/src/utils/webpack.config.js#L746
 
-          if (resolvedImport === "umd react") {
-            // This overrides the resolution of an external 'react' reference to resolve to our
-            // aliased decorator 'ReactWrapper'
-            callback();
-          } else if (resolvedImport !== undefined) {
-            // This ensures that any normal external overrides are adhered to with no modification
-            callback(null, resolvedImport);
-          } else {
-            // if resolvedImport is undefined, then we should just call the callback
-            callback();
-          }
-        });
-      },
-    ...rest];
+    let reactOriginal = 'react';
+    if (config.resolve?.alias?.react) {
+        reactOriginal = config.resolve.alias.react;
+        delete config.resolve.alias.react
+    }
+
+    if (config.externals) {
+      let _, externalFunc, rest = undefined;
+      if (stage === 'develop-html') {
+        externalFunc = config.externals[0];
+      } else if (stage === 'build-html') {
+        [_, externalFunc, ...rest] = config.externals;
+      }
+
+      if (typeof externalFunc === 'function') {
+        const newExternalFunc =
+          function (obj, callback) {
+            const { context, request, getResolve } = obj;
+
+            const isAliasRequest = 
+              request === 'react' || request === './react' || 
+              request === 'react-dom' || request === './react-dom';
+            const isReactRequest = request.startsWith(`___react-`); //=== `___react-original___` || `___react-dom-original___`;
+            
+            if (isReactRequest) {
+              const resolver = getResolve({
+                dependencyType: `commonjs`
+              }); // User modules that do not need to be part of the bundle
+
+              resolver(context, request, (err, newRequest) => {
+                if (err) {
+                  callback(err);
+                  return;
+                }
+                callback(null, newRequest);
+              });
+              return;
+            } else if (isAliasRequest) {
+              callback();
+              return;
+            }
+
+            externalFunc(obj, callback);
+          };
+
+        if (stage === 'develop-html') {
+          config.externals = newExternalFunc;
+        } else if (stage === 'build-html') {
+          config.externals = [_, newExternalFunc, ...rest];
+        }
+      }
+    }
 
     // This will completely replace the webpack config with the modified object.
     actions.replaceWebpackConfig(config);
@@ -37,8 +75,8 @@ exports.applyConfig = ({ getConfig, actions, stage }) => {
     actions.setWebpackConfig({
       resolve: {
         alias: {
-          react$: require.resolve(`webpack-decorators-react`),
-          "___react-original___$": require.resolve(`react`),
+          "react$": require.resolve(`webpack-decorators-react`),
+          "___react-original___$": require.resolve(reactOriginal),
         },
       }
     });
