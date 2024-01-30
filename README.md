@@ -72,3 +72,6 @@ export const onClientEntry = () => {
 > __*Note*:__
 > 
 >  You can register multiple decorators with multiple `registerDecorator` statements.
+
+# Version Notes
+Package version 3.0 and up support React/React-Dom 17.0.1 and up.
